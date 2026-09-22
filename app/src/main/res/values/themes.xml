@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.MobileAppDevelopment" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/mi_azul_principal</item>
+
+        <item name="colorPrimaryVariant">@color/mi_azul_oscuro</item>
+
+        <item name="colorSecondary">@color/mi_azul_principal</item>
+
+        <item name="android:windowBackground">@color/blanco</item>
+
+        <item name="android:statusBarColor">@color/mi_azul_oscuro</item>
+
+        <item name="colorOnPrimary">@color/blanco</item>
+
+        <item name="android:editTextColor">@color/blanco</item>
+
+        <item name="android:textColorSecondary">@color/blanco</item>
+    </style>
+</resources>

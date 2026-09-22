@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">MobileAppDevelopment</string>
+    <string name="mapButton">Go to Map</string>
+    <string name="goBack">Go back</string>
+    <string name="idButton">Identify</string>
+    <string name="location_text">Latitud: %1$.4f, Longitud: %2$.4f</string>
+    <string name="delHis">Delete Hisotry</string>
+    <string name="location_history">Location History</string>
+    <string name="activate_location">Activate location</string>
+    <string name="waiting_for_location">Waiting for location</string>
+    <string name="clear_history">Clear History</string>
+    <string name="latitud">Latitud: -</string>
+    <string name="longitud">Longitud: -</string>
+    <string name="user_name">User Name</string>
+    <string name="default_web_client_id">551234544928-7leedu58026hosrh5kjj1e8kddqavkdd.apps.googleusercontent.com</string>
+    <string name="bikes_count">Bikes: %1$d</string>
+    <string name="docks_count">Spots: %1$d</string>
+    <string name="loading_msg">Connecting with EMT...</string>
+    <string name="error_loading">Error, no stations</string>
+    <string name="fetching_ecological_recommendation">Fetching ecological recommendation...</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mi_azul_principal">#2196F3</color>
+    <color name="mi_azul_oscuro">#1976D2</color>
+
+    <color name="blanco">#FFFFFF</color>
+    <color name="gris_claro">#F5F5F5</color>
+</resources>
