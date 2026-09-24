@@ -1,6 +1,7 @@
 package com.example.mobileappdevelopment
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,38 +16,35 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.mobileappdevelopment.weather.IWeatherService
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.google.firebase.auth.FirebaseAuth
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.IdpResponse
-import android.app.Activity
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
-    private val TAG = "MainActivity"
+    private val tag = "MainActivity"
     private lateinit var auth: FirebaseAuth
 
     companion object {
         private const val RC_SIGN_IN = 123
+        private const val LOCATION_PERMISSION_CODE = 2
     }
 
     private lateinit var locationManager: LocationManager
-    private val locationPermissionCode = 2
     private var lastLocation: Location? = null
-
     private lateinit var textViewStatus: TextView
     private lateinit var txtRecomendacion: TextView
 
-    private val API_KEY = "7d2e7a5d6ee64b1fd7fd8dd8303616dc"
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://api.openweathermap.org/data/2.5/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -68,7 +66,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         textViewStatus = findViewById(R.id.mainTextView)
         txtRecomendacion = findViewById(R.id.txtRecomendacion)
-
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -85,12 +82,14 @@ class MainActivity : AppCompatActivity(), LocationListener {
             }
 
             if (targetActivity != null && this::class.java != targetActivity) {
-                val intent = Intent(this, targetActivity)
-                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                startActivity(intent)
+                startActivity(Intent(this, targetActivity).apply {
+                    flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                })
                 overridePendingTransition(0, 0)
                 true
-            } else false
+            } else {
+                false
+            }
         }
 
         val locationSwitch: SwitchCompat = findViewById(R.id.locationSwitch)
@@ -116,7 +115,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 Toast.makeText(this, "Welcome!", Toast.LENGTH_SHORT).show()
                 updateUIWithUsername()
             } else {
-                Log.e(TAG, "Error: ${response?.error?.errorCode}")
+                Log.e(tag, "Error: ${response?.error?.errorCode}")
                 finish()
             }
         }
@@ -129,7 +128,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
         )
         startActivityForResult(
             AuthUI.getInstance().createSignInIntentBuilder()
-                .setAvailableProviders(providers).build(),
+                .setAvailableProviders(providers)
+                .build(),
             RC_SIGN_IN
         )
     }
@@ -137,14 +137,13 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private fun pedirTiempo(lat: Double, lon: Double) {
         lifecycleScope.launch {
             try {
-                val res = weatherService.getWeather(lat, lon, API_KEY)
+                val res = weatherService.getWeather(lat, lon, BuildConfig.OPENWEATHER_API_KEY)
 
                 findViewById<TextView>(R.id.tvCity).text = res.name
                 val temperaturaC = res.main.temp
                 findViewById<TextView>(R.id.tvTemp).text = "${temperaturaC.toInt()}°C"
-
                 textViewStatus.text = "${res.weather[0].description.replaceFirstChar { it.uppercase() }}\n" +
-                        "Clouds: ${res.clouds.all}% | Humidity: ${res.main.humidity}%"
+                    "Clouds: ${res.clouds.all}% | Humidity: ${res.main.humidity}%"
 
                 val iconCode = res.weather[0].icon
                 val iconUrl = "https://openweathermap.org/img/wn/$iconCode@4x.png"
@@ -153,7 +152,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
                     .into(findViewById<ImageView>(R.id.ivWeatherIcon))
 
                 mostrarRecomendacion(temperaturaC, res.weather[0].description)
-
             } catch (e: Exception) {
                 Log.e("WEATHER", "Error: ${e.message}")
             }
@@ -162,29 +160,21 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     private fun mostrarRecomendacion(temp: Double, clima: String) {
         val recomendacion = when {
-            clima.contains("Rain", true) || clima.contains("Drizzle", true) -> {
-                "🌧️ Slippery pavement. If you use BiciMAD today, keep a safe distance and brake gently."
-            }
-            clima.contains("Snow", true) -> {
-                "❄️ Snow detected. We advise against riding a bike today due to the risk of ice patches."
-            }
-            temp < 10.0 -> {
-                "🥶 It's cold out there (${temp.toInt()}ºC). Remember to wear gloves so you don't lose grip while braking."
-            }
-            temp > 30.0 -> {
-                "☀️ Heat warning (${temp.toInt()}ºC). Avoid intense physical effort and carry water if you're going to pedal."
-            }
-            temp in 15.0..26.0 -> {
-                "🍃 Perfect weather (${temp.toInt()}ºC)! Riding a bike today is the best way to reduce your carbon footprint."
-            }
-            else -> {
-                "🚲 Current temperature: ${temp.toInt()}ºC. Always check your tire pressure before unlocking your BiciMAD."
-            }
+            clima.contains("Rain", true) || clima.contains("Drizzle", true) ->
+                "Slippery pavement. If you use BiciMAD today, keep a safe distance and brake gently."
+            clima.contains("Snow", true) ->
+                "Snow detected. We advise against riding a bike today due to the risk of ice patches."
+            temp < 10.0 ->
+                "It's cold out there (${temp.toInt()}ºC). Remember to wear gloves so you don't lose grip while braking."
+            temp > 30.0 ->
+                "Heat warning (${temp.toInt()}ºC). Avoid intense physical effort and carry water if you're going to pedal."
+            temp in 15.0..26.0 ->
+                "Perfect weather (${temp.toInt()}ºC)! Riding a bike today is the best way to reduce your carbon footprint."
+            else ->
+                "Current temperature: ${temp.toInt()}ºC. Always check your tire pressure before unlocking your BiciMAD."
         }
 
-        runOnUiThread {
-            txtRecomendacion.text = recomendacion
-        }
+        txtRecomendacion.text = recomendacion
     }
 
     private fun checkLocationPermissions() {
@@ -192,7 +182,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-                locationPermissionCode
+                LOCATION_PERMISSION_CODE
             )
         } else {
             startLocationUpdates()
@@ -207,26 +197,20 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
             val lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                 ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
             lastKnown?.let { onLocationChanged(it) }
         } catch (e: SecurityException) {
-            Log.e(TAG, "Error: ${e.message}")
+            Log.e(tag, "Error: ${e.message}")
         }
     }
 
     override fun onLocationChanged(location: Location) {
-
+        lastLocation = location
         pedirTiempo(location.latitude, location.longitude)
     }
 
-
-
     private fun updateUIWithUsername() {
-        val user = auth.currentUser
-        val userNameTV: TextView? = findViewById(R.id.userNameTextView)
-        user?.let {
-            val name = it.displayName ?: "No name"
-            userNameTV?.text = "🤵‍♂️ $name"
+        auth.currentUser?.let { user ->
+            findViewById<TextView>(R.id.userNameTextView)?.text = user.displayName ?: "No name"
         }
     }
 
@@ -239,9 +223,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
         return when (item.itemId) {
             R.id.action_logout -> {
                 AuthUI.getInstance().signOut(this).addOnCompleteListener {
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
+                    startActivity(Intent(this, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    })
                     finish()
                 }
                 true
@@ -265,7 +249,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == locationPermissionCode) {
+        if (requestCode == LOCATION_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
                 startLocationUpdates()
@@ -277,16 +261,20 @@ class MainActivity : AppCompatActivity(), LocationListener {
     }
 
     private fun saveLocationPreference(isEnabled: Boolean) {
-        getSharedPreferences("AppPreferences", Context.MODE_PRIVATE).edit().putBoolean("locationEnabled", isEnabled).apply()
+        getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("locationEnabled", isEnabled)
+            .apply()
     }
 
     private fun getLocationPreference(): Boolean {
-        return getSharedPreferences("AppPreferences", Context.MODE_PRIVATE).getBoolean("locationEnabled", true)
+        return getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+            .getBoolean("locationEnabled", true)
     }
 
-    override fun onProviderEnabled(provider: String) {}
-    override fun onProviderDisabled(provider: String) {}
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+    override fun onProviderEnabled(provider: String) = Unit
+    override fun onProviderDisabled(provider: String) = Unit
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) = Unit
 
     override fun onPause() {
         super.onPause()
@@ -295,11 +283,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     override fun onResume() {
         super.onResume()
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
-        navView.menu.findItem(R.id.navigation_home).isChecked = true
+        findViewById<BottomNavigationView>(R.id.nav_view)
+            .menu.findItem(R.id.navigation_home).isChecked = true
 
-        val isEnabled = getLocationPreference()
-        if (isEnabled) {
+        if (getLocationPreference()) {
             checkLocationPermissions()
         }
     }
