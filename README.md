@@ -1,55 +1,118 @@
-# MAD Project
+# EcoMAD
 
-This is a mobile application developed in **Kotlin** for the *Mobile App Development* course at **ETSISI (UPM)**. The project focuses on promoting sustainable mobility in Madrid by facilitating the use of the **BiciMad** electric bike service.
+Aplicación móvil Android desarrollada en Kotlin para fomentar la movilidad sostenible en Madrid. EcoMAD combina información meteorológica, localización y disponibilidad de estaciones BiciMAD para ayudar a planificar desplazamientos en bicicleta.
 
-## Team Members
-* **Alejandro Corona Ballester**
-* **Mario Reyes Morales**
+El proyecto fue desarrollado por Alejandro Corona Ballester, Jorge Sanchez Campelo y Mario Reyes Morales como trabajo académico de desarrollo de aplicaciones móviles.
 
-# EcoMAD (BiciMAD & Weather Companion)
+## Funcionalidades
 
-A native Android application designed to promote sustainable mobility in Madrid. The app combines real-time weather data with the availability of BiciMAD stations, offering personalized recommendations to help reduce the user's carbon footprint.
+- Consulta del tiempo actual a partir de la ubicación del dispositivo.
+- Recomendaciones para desplazarse en bicicleta según la temperatura y las condiciones meteorológicas.
+- Visualización de estaciones BiciMAD sobre un mapa interactivo.
+- Consulta de bicicletas disponibles y anclajes libres en las estaciones.
+- Gestión de estaciones favoritas mediante una base de datos local.
+- Navegación entre el panel principal, el mapa, las estaciones BiciMAD y las estaciones favoritas.
+- Inicio de sesión mediante correo electrónico o Google.
+- Activación y desactivación de la localización desde la aplicación.
 
-## Main Features
+## Tecnologías
 
-* **Eco Dashboard:** A home screen that displays current weather using geolocation and offers smart recommendations (e.g., rain/ice warnings, heat alerts, or encouraging messages to ride a bike on nice days).
-* **Interactive Map:** Integration with OpenStreetMap (OSMDroid) to visualize your real-time location and explore all BiciMAD stations across the city.
-* **Real-Time Availability:** A complete list of stations connected to the EMT API, showing available bikes and free docks.
-* **Favorite Stations (Offline):** A system to save your most-used stations using a local database. Just long-press a station to save it and quickly check it from your personal favorites dashboard.
-* **Authentication:** Secure login integrated with Firebase Authentication (Google & Email).
+- Kotlin
+- Android SDK
+- AndroidX y Material Design
+- Retrofit y Gson para el consumo de servicios web
+- OpenWeather para la información meteorológica
+- API de EMT Madrid para los datos de BiciMAD
+- OSMDroid y OpenStreetMap para la visualización cartográfica
+- Room para la persistencia local de estaciones favoritas
+- Kotlin Coroutines y `lifecycleScope` para operaciones asíncronas
+- Firebase Authentication y Firebase UI para la autenticación
+- Glide para la carga de iconos meteorológicos
+- Gradle Kotlin DSL
 
-## Technologies & Architecture
+## Arquitectura de la aplicación
 
-This project was developed in **Kotlin**, following modern Android development best practices:
+La aplicación está organizada en varias pantallas y componentes, cada uno orientado a una función concreta:
 
-* **Network Architecture:** `Retrofit2` + `Gson` for consuming the OpenWeather and EMT Madrid APIs.
-* **Asynchrony:** `Coroutines` (`lifecycleScope`) to handle network and database operations without blocking the main UI thread.
-* **Local Database:** `Room Database` implementing the DAO pattern for local data persistence (favorites).
-* **Geolocation:** Native `LocationManager` with runtime permission handling.
-* **Maps:** `OSMDroid` for rendering the map and markers without relying on Google Play Services.
-* **UI/UX:** Native `RecyclerView`s, `BottomNavigationView` with Material Design icons, and asynchronous image loading with `Glide`.
-* **Backend as a Service:** `Firebase Auth` and `Firebase UI`.
+- `MainActivity`: panel principal, ubicación, información meteorológica y recomendaciones.
+- `OpenStreetMapsActivity`: mapa interactivo con la ubicación del usuario y las estaciones.
+- `BiciMadActivity`: consulta de estaciones y disponibilidad de bicicletas y anclajes.
+- `FavoritesActivity`: gestión y consulta de las estaciones guardadas.
+- Capa de servicios Retrofit: comunicación con las APIs meteorológica y de movilidad.
+- Room Database: almacenamiento local de las estaciones favoritas.
+- Firebase Authentication: gestión del acceso de los usuarios.
 
-## Screenshots
+La aplicación solicita permisos de ubicación en tiempo de ejecución y utiliza la ubicación del dispositivo para actualizar la información meteorológica y representar la posición del usuario en el mapa.
 
-<img width="921" height="2048" alt="WhatsApp Image 2026-04-18 at 17 33 40" src="https://github.com/user-attachments/assets/25cd294f-29d0-486b-a723-0fa01538c64c" />
-<img width="921" height="2048" alt="WhatsApp Image 2026-04-18 at 17 33 40(1)" src="https://github.com/user-attachments/assets/62932a1c-2e5c-4e19-be2b-48703d5388f0" />
-<img width="921" height="2048" alt="WhatsApp Image 2026-04-18 at 17 33 40(3)" src="https://github.com/user-attachments/assets/e71b293f-0476-4417-ad80-2d43879837b6" />
-<img width="921" height="2048" alt="WhatsApp Image 2026-04-18 at 17 33 40(2)" src="https://github.com/user-attachments/assets/4b95d6dd-6184-491b-ab2e-7775f23b1e6a" />
+## Capturas de pantalla
 
+<img width="921" height="2048" alt="Panel principal de EcoMAD" src="https://github.com/user-attachments/assets/25cd294f-29d0-486b-a723-0fa01538c64c" />
 
+<img width="921" height="2048" alt="Mapa de estaciones BiciMAD" src="https://github.com/user-attachments/assets/62932a1c-2e5c-4e19-be2b-48703d5388f0" />
 
-https://github.com/user-attachments/assets/e1b3911f-eea1-4a6b-84e2-84cc00990a44
+<img width="921" height="2048" alt="Consulta de estaciones BiciMAD" src="https://github.com/user-attachments/assets/e71b293f-0476-4417-ad80-2d43879837b6" />
 
+<img width="921" height="2048" alt="Estaciones favoritas" src="https://github.com/user-attachments/assets/4b95d6dd-6184-491b-ab2e-7775f23b1e6a" />
 
+## Instalación
 
-## Installation & Testing
+### Requisitos
 
-To compile and test this project in your local environment:
+- Android Studio.
+- JDK 17.
+- Android SDK con API 34.
+- Un emulador o dispositivo Android con Android 7.0 o superior.
+- Una cuenta y una API key de OpenWeather para consultar la información meteorológica.
 
-1. Clone this repository: `https://github.com/CJandoB/MobileAppDevelopment.git`
-2. Open the project in **Android Studio**.
-3. Build and run on an emulator or physical device (Android 8.0+ recommended).
+### Configuración de OpenWeather
 
----
-**Developed by Alejandro Corona & Mario Reyes**
+La clave de OpenWeather no se incluye en el repositorio. Debe configurarse localmente en un archivo `local.properties` situado en la raíz del proyecto:
+
+```properties
+OPENWEATHER_API_KEY=YOUR_OPENWEATHER_API_KEY
+```
+
+El archivo `local.properties` está excluido mediante `.gitignore` y no debe publicarse.
+
+### Ejecución
+
+1. Clonar el repositorio:
+
+   ```bash
+   git clone https://github.com/mario-reyes-morales/EcoMAD-Android-Kotlin.git
+   ```
+
+2. Abrir el proyecto en Android Studio.
+3. Configurar la clave de OpenWeather en `local.properties`.
+4. Sincronizar el proyecto con Gradle.
+5. Ejecutar la aplicación en un emulador o dispositivo Android.
+6. Conceder el permiso de ubicación cuando la aplicación lo solicite.
+
+La autenticación de Firebase utiliza la configuración incluida en `app/google-services.json` para el identificador de aplicación del proyecto.
+
+## Estructura principal
+
+```text
+app/
+  src/main/
+    java/com/example/mobileappdevelopment/
+      MainActivity.kt
+      BiciMadActivity.kt
+      FavoritesActivity.kt
+      OpenStreetMapsActivity.kt
+      weather/
+    res/
+  google-services.json
+  build.gradle.kts
+build.gradle.kts
+gradle.properties
+settings.gradle.kts
+```
+
+## Equipo
+
+- Alejandro Corona Ballester
+- Jorge Sanchez Campelo
+- Mario Reyes Morales
+
+El proyecto se desarrolló de forma colaborativa, compartiendo el trabajo de análisis, diseño, implementación e integración de la aplicación.
