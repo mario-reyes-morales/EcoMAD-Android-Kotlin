@@ -5,6 +5,14 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
+}
+
 android {
     namespace = "com.example.mobileappdevelopment"
     compileSdk = 34
@@ -17,29 +25,15 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "OPENWEATHER_API_KEY",
+            "\"${localProperties.getProperty("OPENWEATHER_API_KEY", "")}\""
+        )
     }
 
-    signingConfigs {
-        getByName("debug") {
-            storeFile = file("../debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
-    }
-
-    buildTypes {
-        debug {
-            signingConfig = signingConfigs.getByName("debug")
-        }
-
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -51,10 +45,12 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
